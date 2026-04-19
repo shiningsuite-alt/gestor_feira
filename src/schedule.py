@@ -97,7 +97,7 @@ schedule={
     ]
 }
 
-def add_seller(name, product_type,extra_description,day,time):
+def create_seller(name, product_type,extra_description,day,time):
     schedule[day][time][name]={}
     counter = 1
     if name not in schedule["listed_names"]:
@@ -118,9 +118,9 @@ def add_seller(name, product_type,extra_description,day,time):
         schedule[day][time][name]["extra_description"]="none"
     else:
         schedule[day][time][name]["extra_description"]=extra_description
-    return 200
+    return 200, "success"
 
-def search_sellers(seller_id):
+def read_sellers(seller_id):
     temp_list = []
     for day in schedule["list_of_days"]:
         for time in schedule["list_of_time"]:
@@ -130,11 +130,11 @@ def search_sellers(seller_id):
                         temp_list.append(list(schedule[day][time][name].values()))
     if temp_list:
         print(tabulate(temp_list, headers=schedule["headers_2"], tablefmt="grid"))
-        return 200
+        return 200, "success"
     else:
-        return 404
+        return 404, "not found"
 
-def edit_seller(seller_id,new_name, product_type,extra_description,new_day,new_time):
+def update_seller(seller_id,new_name, product_type,extra_description,new_day,new_time):
     found=False
     for i in schedule["list_of_days"]:
         for j in schedule["list_of_time"]:
@@ -162,11 +162,11 @@ def edit_seller(seller_id,new_name, product_type,extra_description,new_day,new_t
             schedule[day][time][name]["extra_description"]="none"
         else:
             schedule[day][time][name]["extra_description"]=extra_description
-        return 200
+        return 200, "success"
     else:
-        return 404
+        return 404, "not found"
 
-def remove_sellers(id_select):
+def delete_sellers(id_select):
     for i in schedule["list_of_days"]:
         for j in schedule["list_of_time"]:
             for k in schedule[i][j]:
@@ -177,6 +177,6 @@ def remove_sellers(id_select):
                 else:
                     found_id = False
     if not found_id:
-        return 404
+        return 404, "not found"
     else:
-        return 200
+        return 200, "success"

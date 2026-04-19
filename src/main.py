@@ -2,27 +2,27 @@ import general_functions
 from tabulate import tabulate
 from pathlib import Path
 from items_file import (
-    add_product,
-    change_product,
-    remove_product,
-    search_product_by_id,
+    create_product,
+    update_product,
+    delete_product,
+    read_product_by_id,
     items,
     default_items,
     lists
 )
 from orders_module import (
-    add_item_order,
-    edit_item_order,
-    remove_item_order,
-    view_item_order,
+    create_item_order,
+    update_item_order,
+    delete_item_order,
+    read_item_order,
     sales,
     default_sales
 )
 from schedule import (
-    add_seller,
-    search_sellers,
-    edit_seller,
-    remove_sellers,
+    create_seller,
+    read_sellers,
+    update_seller,
+    delete_sellers,
     schedule
 )
 
@@ -64,10 +64,10 @@ def main():
                     if make_choice == 1:
                         while True:
                             print("============Stock manager============")
-                            print("1 - Add product")
+                            print("1 - Create product")
                             print("2 - Update product")
                             print("3 - Delete product")
-                            print("4 - search product by id")
+                            print("4 - Read product by id")
                             print("5 - Leave")
                             make_choice = general_functions.validation_check_2(5)
                             if make_choice == 1:
@@ -101,12 +101,19 @@ def main():
                                         else:
                                             print("No preexisting item classes")
                                             general_functions.pause()
-                                return_code=add_product(item_name, item_price, item_quantity, item_class)
-                                if return_code == 200:
+                                return_code=create_product(item_name, item_price, item_quantity, item_class)
+                                if return_code[0] == 200:
                                     print("Item added successfully")
                                 else:
                                     print("Item not added")
                             elif make_choice == 2:
+                                item_id=general_functions.validation_check()
+                                return_code=read_product_by_id(item_id)
+                                if return_code[0]==200:
+                                    print("Item found successfully")
+                                else:
+                                    print("Item not found")
+                            elif make_choice == 3:
                                 print("input item id")
                                 item_id = general_functions.validation_check()
                                 new_name=input("Input new name:")
@@ -120,27 +127,20 @@ def main():
                                     new_price=general_functions.validation_check_float()
                                     print("Input new quantity")
                                     new_quantity=general_functions.validation_check()
-                                    return_code=change_product(item_id,new_name,new_class,new_price,new_quantity)
+                                    return_code=update_product(item_id,new_name,new_class,new_price,new_quantity)
                                 else:
-                                    return_code= 204
-                                if return_code == 200:
+                                    return_code= 204, "no content"
+                                if return_code[0] == 200:
                                     print("Item changed successfully")
-                                elif return_code == 204:
+                                elif return_code[0] == 204:
                                     print("No class to choose from")
                                 else:
                                     print("Item not modified")
-                            elif make_choice == 3:
-                                item_id = general_functions.validation_check()
-                                return_code=remove_product(item_id)
-                                if return_code==200:
-                                    print("Item removed successfully")
-                                else:
-                                    print("Item not found")
                             elif make_choice == 4:
-                                item_id=general_functions.validation_check()
-                                return_code=search_product_by_id(item_id)
-                                if return_code==200:
-                                    print("Item found successfully")
+                                item_id = general_functions.validation_check()
+                                return_code=delete_product(item_id)
+                                if return_code[0]==200:
+                                    print("Item removed successfully")
                                 else:
                                     print("Item not found")
                             else:
@@ -150,9 +150,9 @@ def main():
                     elif make_choice == 2:
                         while True:
                             print("======Order manager======")
-                            print("1 - Add item to order")
-                            print("2 - View items")
-                            print("3 - Edit items")
+                            print("1 - Create item to order")
+                            print("2 - Read items")
+                            print("3 - Update items")
                             print("4 - Delete items")
                             print("5 - Finalize order")
                             print("6 - Leave")
@@ -162,14 +162,14 @@ def main():
                                 item_id=general_functions.validation_check()
                                 print("Input item quantity")
                                 item_quantity=general_functions.validation_check()
-                                return_code=add_item_order(item_id,item_quantity)
-                                if return_code==200:
+                                return_code=create_item_order(item_id,item_quantity)
+                                if return_code[0]==200:
                                     print("Item added successfully to cart")
                                 else:
                                     print("Item not found")
                             elif make_choice == 2:
-                                return_code=view_item_order()
-                                if return_code==200:
+                                return_code=read_item_order()
+                                if return_code[0]==200:
                                     print("Item view successfully")
                                 else:
                                     print("No items to view")
@@ -183,19 +183,19 @@ def main():
                                     item_name = list(sales["temp_order"]["items"])[make_choice - 1]
                                     print("Input item quantity")
                                     item_quantity = general_functions.validation_check()
-                                    return_code=edit_item_order(item_name,item_quantity)
+                                    return_code=update_item_order(item_name,item_quantity)
                                 else:
-                                    return_code=204
-                                if return_code==200:
+                                    return_code = 204, "no content"
+                                if return_code[0]==200:
                                     print("Item edited successfully")
-                                elif return_code == 204:
+                                elif return_code[0] == 204:
                                     print("No items to edit")
                                 else:
                                     print("Item not changed")
                             elif make_choice == 4:
                                 item_name=input("Input item name:")
-                                return_code=remove_item_order(item_name)
-                                if return_code==200:
+                                return_code=delete_item_order(item_name)
+                                if return_code[0]==200:
                                     print("Item removed successfully")
                                 else:
                                     print("Item not found")
@@ -255,15 +255,15 @@ def main():
                     print("Select time")
                     time_select = general_functions.validation_check_2(9)
                     time = schedule["list_of_time"][time_select - 1]
-                    return_code=add_seller(name, product_type, extra_description, day, time)
-                    if return_code==200:
+                    return_code=create_seller(name, product_type, extra_description, day, time)
+                    if return_code[0]==200:
                         print("Seller added successfully")
                     general_functions.pause()
                 elif make_choice == 2:
                     print("Write seller id")
                     seller_id = general_functions.validation_check()
-                    return_code=search_sellers(seller_id)
-                    if return_code==200:
+                    return_code=read_sellers(seller_id)
+                    if return_code[0]==200:
                         print("Seller found successfully")
                     else:
                         print("Seller not found")
@@ -289,8 +289,8 @@ def main():
                     print("Select time")
                     time_select = general_functions.validation_check_2(9)
                     time = schedule["list_of_time"][time_select - 1]
-                    return_code= edit_seller(input_id,name, product_type, extra_description, day, time)
-                    if return_code==200:
+                    return_code= update_seller(input_id,name, product_type, extra_description, day, time)
+                    if return_code[0]==200:
                         print("Seller added successfully")
                     else:
                         print("Id not found")
@@ -298,8 +298,8 @@ def main():
                 elif make_choice == 4:
                     print("Write seller id")
                     seller_id=general_functions.validation_check()
-                    return_code=remove_sellers(seller_id)
-                    if return_code==404:
+                    return_code=delete_sellers(seller_id)
+                    if return_code[0]==404:
                         print("sellers not found")
                     else:
                         print("Seller deleted successfully")

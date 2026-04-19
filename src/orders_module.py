@@ -19,7 +19,7 @@ sales = {
     "order_names":[],
 }
 
-def add_item_order(item_id,item_quantity):
+def create_item_order(item_id,item_quantity):
     item_name=""
     for i in items:
         if "id" in items[i]:
@@ -40,36 +40,36 @@ def add_item_order(item_id,item_quantity):
             sales["temp_order"]["quantities"][item_name] += item_quantity
             items["quantities"][item_name] -= item_quantity
             print(str(item_quantity) + item_name + "(s) has(have) been added")
-        return 200
+        return 200, "success"
     else:
-        return 404
+        return 404, "not found"
 
-def remove_item_order(item_name):
+def delete_item_order(item_name):
     if item_name in sales["temp_order"]["items"]:
         items["quantities"][item_name] += sales["temp_order"]["quantities"][item_name]
         del sales["temp_order"]["items"][item_name]
         del sales["temp_order"]["quantities"][item_name]
-        return 200
+        return 200, "success"
     else:
-        return 404
+        return 404, "not found"
 
-def edit_item_order(item_name,item_quantity):
+def update_item_order(item_name,item_quantity):
     if sales["temp_order"]["quantities"][item_name]!=item_quantity:
         items["quantities"][item_name] += sales["temp_order"]["quantities"][item_name]
         sales["temp_order"]["quantities"][item_name] = 0
         sales["temp_order"]["quantities"][item_name] = general_functions.validation_check_2(items["quantities"][item_name])
         items["quantities"][item_name] -= sales["temp_order"]["quantities"][item_name]
         sales["temp_order"]["items"][item_name]["price"] = items[item_name]["price"] * sales["temp_order"]["quantities"][item_name]
-        return 200
+        return 200, "success"
     else:
-        return 304
+        return 304, "no change"
 
-def view_item_order():
+def read_item_order():
     if len(sales["temp_order"]["items"]) > 0:
         counter = 1
         for i in sales["temp_order"]["items"].keys():
             print(str(counter) + " - " + str(sales["temp_order"]["items"][i]) + ", quantities:'"+ str(sales["temp_order"]["quantities"][i])+"'")
             counter += 1
-        return 200
+        return 200, "success"
     else:
-        return 204
+        return 204, "No content"

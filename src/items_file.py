@@ -10,7 +10,7 @@ lists= {
     "items_class":[]
 }
 
-def add_product(name,price,quantity,item_class):
+def create_product(name,price,quantity,item_class):
     if name not in items:
         items[name] = {}
         id_item = 1
@@ -25,11 +25,11 @@ def add_product(name,price,quantity,item_class):
         items[name]["class"] = item_class
         print("Added  " + name)
         general_functions.pause()
-        return 200
+        return 200, "success"
     else:
-        return 409
+        return 409, "Already exists"
 
-def change_product(item_id,new_name,new_class,new_price,new_quantity):
+def update_product(item_id,new_name,new_class,new_price,new_quantity):
     failure = True
     change = False
     things_changed=[]
@@ -66,11 +66,11 @@ def change_product(item_id,new_name,new_class,new_price,new_quantity):
         items["quantities"][item_name] = new_quantity
         change=True
     if change:
-        return 200
+        return 200, "success"
     else:
-        return 304
+        return 304, "no change"
 
-def remove_product(item_id):
+def delete_product(item_id):
     failure = True
     for i in items.keys():
         if "id" in items[i]:
@@ -84,11 +84,11 @@ def remove_product(item_id):
             else:
                 failure = True
     if failure:
-        return 404
+        return 404, "not found"
     else:
-        return 200
+        return 200, "success"
 
-def search_product_by_id(item_id):
+def read_product_by_id(item_id):
     failure = True
     for i in items.keys():
         if "id" in items[i]:
@@ -102,6 +102,6 @@ def search_product_by_id(item_id):
             else:
                 failure = True
     if failure:
-        return 404
+        return 404, "not found"
     else:
-        return 200
+        return 200, "success"
