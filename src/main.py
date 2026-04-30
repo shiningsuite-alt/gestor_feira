@@ -23,7 +23,7 @@ from sellers import (
     read_sellers,
     update_seller,
     delete_sellers,
-    schedule
+    sellers
 )
 
 save_file = Path("sellers.json")
@@ -34,13 +34,13 @@ def main():
     while True:
         print("======Menu======")
         print("1 - Select seller")
-        print("2 - Edit schedule")
+        print("2 - Edit sellers")
         print("3 - Leave")
         make_choice=general_functions.validation_check_2(3)
         if make_choice == 1:
             name=input("Enter seller's name: ")
             name=name.lower()
-            if name in schedule["listed_names"]:
+            if name in sellers["listed_names"]:
                 if name not in seller_saves:
                     seller_saves[name]={}
                 if "items" not in seller_saves[name]:
@@ -216,20 +216,7 @@ def main():
                 print("Seller does not exist")
         elif make_choice==2:
             while True:
-                schedule["print"]=[]
-                for time in schedule["list_of_time"]:
-                    temp_list = [time]
-                    for day in schedule["list_of_days"]:
-                        if len(schedule[day][time]) == 10:
-                            temp_list.append("\033[32mFull\033[0m")
-                        elif 10 > len(schedule[day][time]) > 0:
-                            temp_list.append("\033[93mPartially filled\033[0m")
-                        else:
-                            temp_list.append("\033[31mEmpty\033[0m")
-                    schedule["print"].append(temp_list)
-                print("=======Schedule=======")
-                print(tabulate(schedule["print"], headers=schedule["headers"], tablefmt="grid"))
-                print("========Editing schedule =======")
+                print("========Editing sellers =======")
                 print("1 - Add seller")
                 print("2 - View seller")
                 print("3 - Edit seller")
@@ -241,21 +228,7 @@ def main():
                     name = name.lower()
                     extra_description = input("Extra description: ")
                     product_type = input("Type of product: ")
-                    counter=1
-                    for i in schedule["list_of_days"]:
-                        print(str(counter) + " - " + i)
-                        counter+=1
-                    print("Select day")
-                    day_select = general_functions.validation_check_2(5)
-                    day = schedule["list_of_days"][day_select - 1]
-                    counter=1
-                    for i in schedule["list_of_time"]:
-                        print(str(counter) + " - " + i)
-                        counter+=1
-                    print("Select time")
-                    time_select = general_functions.validation_check_2(9)
-                    time = schedule["list_of_time"][time_select - 1]
-                    return_code, return_seller_values=create_seller(name, product_type, extra_description, day, time)
+                    return_code, return_seller_values=create_seller(name, product_type, extra_description)
                     if return_code[0]==200:
                         print(return_seller_values)
                     general_functions.pause()
@@ -264,7 +237,7 @@ def main():
                     seller_id = general_functions.validation_check()
                     return_code,return_seller_values=read_sellers(seller_id)
                     if return_code[0]==200:
-                        print(return_seller_values)
+                        print(tabulate(return_seller_values, headers=sellers["headers"], tablefmt="grid"))
                     else:
                         print("Seller not found")
                     general_functions.pause()
@@ -275,21 +248,7 @@ def main():
                     name = name.lower()
                     extra_description = input("Extra description: ")
                     product_type = input("Type of product: ")
-                    counter=1
-                    for i in schedule["list_of_days"]:
-                        print(str(counter) + " - " + i)
-                        counter+=1
-                    print("Select day")
-                    day_select = general_functions.validation_check_2(5)
-                    day = schedule["list_of_days"][day_select - 1]
-                    counter=1
-                    for i in schedule["list_of_time"]:
-                        print(str(counter) + " - " + i)
-                        counter+=1
-                    print("Select time")
-                    time_select = general_functions.validation_check_2(9)
-                    time = schedule["list_of_time"][time_select - 1]
-                    return_code, return_seller_values= update_seller(input_id,name, product_type, extra_description, day, time)
+                    return_code, return_seller_values= update_seller(input_id,name, product_type, extra_description)
                     if return_code[0]==200:
                         print(return_seller_values)
                     else:

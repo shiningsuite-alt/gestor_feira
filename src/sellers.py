@@ -1,181 +1,84 @@
 import general_functions
 from tabulate import tabulate
 
-schedule={
-    "headers": [
-        "Time",
-        "1 - Monday",
-        "2 - Tuesday",
-        "3 - Wednesday",
-        "4 - Thursday",
-        "5 - Friday"
+sellers={
+    "listed_names": [
     ],
-    "headers_2": [
+    "headers": [
         "Id",
         "Name",
         "Product type",
         "Time",
         "Day",
         "Description"
-    ],
-    "list_of_days": [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday"
-    ],
-    "list_of_time": [
-        "8:00",
-        "9:05",
-        "10:15",
-        "11:25",
-        "12:35",
-        "13:45",
-        "14:50",
-        "16:00",
-        "17:10"
-    ],
-    "Monday": {
-        "8:00": {},
-        "9:05": {},
-        "10:15": {},
-        "11:25": {},
-        "12:35": {},
-        "13:45": {},
-        "14:50": {},
-        "16:00": {},
-        "17:10": {}
-    },
-    "Tuesday": {
-        "8:00": {},
-        "9:05": {},
-        "10:15": {},
-        "11:25": {},
-        "12:35": {},
-        "13:45": {},
-        "14:50": {},
-        "16:00": {},
-        "17:10": {}
-    },
-    "Wednesday": {
-        "8:00": {},
-        "9:05": {},
-        "10:15": {},
-        "11:25": {},
-        "12:35": {},
-        "13:45": {},
-        "14:50": {},
-        "16:00": {},
-        "17:10": {}
-    },
-    "Thursday": {
-        "8:00": {},
-        "9:05": {},
-        "10:15": {},
-        "11:25": {},
-        "12:35": {},
-        "13:45": {},
-        "14:50": {},
-        "16:00": {},
-        "17:10": {}
-    },
-    "Friday": {
-        "8:00": {},
-        "9:05": {},
-        "10:15": {},
-        "11:25": {},
-        "12:35": {},
-        "13:45": {},
-        "14:50": {},
-        "16:00": {},
-        "17:10": {}
-    },
-    "listed_names": [
-    ],
-    "print": [
     ]
 }
 
-def create_seller(name, product_type,extra_description,day,time):
-    schedule[day][time][name]={}
+def create_seller(name, product_type,extra_description):
+    sellers[name]={}
     counter = 1
-    if name not in schedule["listed_names"]:
-        schedule["listed_names"].append(name)
+    if name not in sellers["listed_names"]:
+        sellers["listed_names"].append(name)
     counter=1
-    for i in schedule["list_of_days"]:
-        for j in schedule["list_of_time"]:
-            for k in schedule[i][j]:
-                if "ID" in schedule[i][j][k]:
-                    if counter==schedule[i][j][k]["ID"]:
-                        counter+=1
-    schedule[day][time][name]["ID"] = counter
-    schedule[day][time][name]["name"] = name
-    schedule[day][time][name]["product_type"] = product_type
-    schedule[day][time][name]["time"]=time
-    schedule[day][time][name]["day"]=day
+    for i in sellers:
+        if "ID" in sellers[i]:
+            if counter==sellers[i]["ID"]:
+                counter+=1
+    sellers[name]["ID"] = counter
+    sellers[name]["name"] = name
+    sellers[name]["product_type"] = product_type
     if extra_description == "" or extra_description == " ":
-        schedule[day][time][name]["extra_description"]="none"
+        sellers[name]["extra_description"]="none"
     else:
-        schedule[day][time][name]["extra_description"]=extra_description
-    return 200, schedule[day][time][name]
+        sellers[name]["extra_description"]=extra_description
+    return 200, sellers[name]
 
 def read_sellers(seller_id):
     temp_list = []
-    for day in schedule["list_of_days"]:
-        for time in schedule["list_of_time"]:
-            for name in schedule["listed_names"]:
-                if name in schedule[day][time]:
-                    if schedule[day][time][name]["ID"] == seller_id:
-                        temp_list.append(list(schedule[day][time][name].values()))
+    for name in sellers:
+        if "ID" in sellers[name]:
+            if sellers[name]["ID"] == seller_id:
+                temp_list.append(sellers[name].values())
     if temp_list:
-        print(tabulate(temp_list, headers=schedule["headers_2"], tablefmt="grid"))
-        return 200, schedule[day][time][name]
+        print(tabulate(temp_list, headers=sellers["headers"], tablefmt="grid"))
+        return 200, temp_list
     else:
         return 404, "not found"
 
-def update_seller(seller_id,new_name, product_type,extra_description,new_day,new_time):
+def update_seller(seller_id,new_name, product_type,extra_description):
     found=False
-    for i in schedule["list_of_days"]:
-        for j in schedule["list_of_time"]:
-            for k in schedule[i][j]:
-                if schedule[i][j][k]["ID"]==seller_id:
-                    name=k
-                    day=i
-                    time=j
-                    found=True
+    for i in sellers:
+        if "ID" in sellers:
+            if sellers[i]["ID"]==seller_id:
+                name=i
+            found=True
     if found:
-        if new_name not in schedule["listed_names"]:
-            schedule["listed_names"].append(new_name)
-        if schedule[day][time][name]["name"] != new_name:
-            schedule[day][time][new_name]=schedule[day][time][name]
-            del schedule[day][time][name]
+        if new_name not in sellers["listed_names"]:
+            sellers["listed_names"].append(new_name)
+        if sellers[name]["name"] != new_name:
+            sellers[new_name]=sellers[name]
+            del sellers[name]
             name=new_name
-            schedule[day][time][name]["name"] = new_name
-        if schedule[day][time][name]["product_type"] != product_type:
-            schedule[day][time][name]["product_type"] = product_type
-        if schedule[day][time][name]["time"] != new_time:
-            schedule[day][time][name]["time"]=new_time
-        if schedule[day][time][name]["day"] != new_day:
-            schedule[day][time][name]["day"]=new_day
+            sellers[name]["name"] = new_name
+        if sellers[name]["product_type"] != product_type:
+            sellers[name]["product_type"] = product_type
         if extra_description == "" or extra_description == " ":
-            schedule[day][time][name]["extra_description"]="none"
+            sellers[name]["extra_description"]="none"
         else:
-            schedule[day][time][name]["extra_description"]=extra_description
-        return 200, schedule[day][time][name]
+            sellers[name]["extra_description"]=extra_description
+        return 200, sellers[name]
     else:
         return 404, "not found"
 
 def delete_sellers(id_select):
-    for day in schedule["list_of_days"]:
-        for time in schedule["list_of_time"]:
-            for name in schedule[day][time]:
-                if schedule[day][time][name]["ID"] == id_select:
-                    del schedule[day][time][name]
-                    found_id = True
-                    break
-                else:
-                    found_id = False
+    for name in sellers:
+        if "ID" in sellers[name]:
+            if sellers[name]["ID"] == id_select:
+                del sellers[name]
+                found_id = True
+                break
+        else:
+            found_id = False
     if not found_id:
         return 404, "not found"
     else:
