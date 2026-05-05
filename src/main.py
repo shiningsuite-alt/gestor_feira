@@ -254,7 +254,7 @@ def main():
                     seller_id = general_functions.validation_check()
                     return_code,return_seller_values=read_sellers(seller_id)
                     if return_code[0]==200:
-                        print(tabulate(return_seller_values, headers=sellers["headers"], tablefmt="grid"))
+                        print(tabulate(return_seller_values.values(), headers=return_seller_values.keys(), tablefmt="grid"))
                     else:
                         print("Seller not found")
                     general_functions.pause()
@@ -274,11 +274,11 @@ def main():
                 elif make_choice == 4:
                     print("Write seller id")
                     seller_id=general_functions.validation_check()
-                    return_code, return_name=delete_sellers(seller_id)
+                    return_code, return_id=delete_sellers(seller_id)
                     if return_code[0]==404:
                         print("sellers not found")
                     else:
-                        print(return_name+" deleted successfully")
+                        print(str(return_id)+" deleted successfully")
                     general_functions.pause()
                 else:
                     print("Leaving...")
@@ -328,9 +328,9 @@ def main():
                     print("9 - 16:00-17:00")
                     print("10 - 17:00-18:00")
                     time_select=general_functions.validation_check_3(1,10)
-                    return_code,msg,sellers_id,schedule_name,day,time=create_session(sellers_id,schedule_name,day_select,time_select)
+                    return_code,session_return_dict=create_session(sellers_id,schedule_name,day_select,time_select)
                     if return_code==200:
-                        print("Session for "+str(sellers_id)+" created on "+day+" at "+time+" of"+schedule_name)
+                        print(session_return_dict)
                     else:
                         print("cannot add more than 20 sessions in this time")
                 elif make_choice==2:
@@ -365,9 +365,9 @@ def main():
                     print("9 - 16:00-17:00")
                     print("10 - 17:00-18:00")
                     time_select = general_functions.validation_check_3(1, 10)
-                    return_code, msg, sessions_dict, day, time=update_session(session_id,schedule_name,day_select,time_select)
+                    return_code, return_session_dict=update_session(session_id,schedule_name,day_select,time_select)
                     if return_code==200:
-                        print(sessions_dict)
+                        print(return_session_dict)
                     elif return_code==404:
                         print("Session not found")
                     else:
@@ -439,9 +439,9 @@ def main():
                             day = general_functions.validation_check_2(28)
                     else:
                         day = general_functions.validation_check_2(30)
-                    return_code, schedule_first_day,schedule_last_day=update_schedule(day,month,year,schedule_id)
+                    return_code, schedule_id=update_schedule(day,month,year,schedule_id)
                     if return_code==200:
-                        print("Schedule date changed from "+ schedule_first_day+" to "+ schedule_last_day)
+                        print("Schedule date changed in "+ str(schedule_id))
                     elif return_code==404:
                         print("Schedule not found")
                     else:
@@ -450,11 +450,11 @@ def main():
                 elif make_choice == 4:
                     print("Input ID:")
                     schedule_id=general_functions.validation_check()
-                    return_code,schedule_name=delete_schedule(schedule_id)
+                    return_code,schedule_id=delete_schedule(schedule_id)
                     if return_code==200:
-                        print(schedule_name+" deleted successfully")
+                        print(str(schedule_id)+" deleted successfully")
                     else:
-                        print(schedule_name)
+                        print("schedule not found")
                 else:
                     print("leaving...")
                     general_functions.pause()

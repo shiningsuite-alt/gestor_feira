@@ -193,11 +193,11 @@ def update_schedule(day,month,year,schedule_id):
                 schedules[schedule_name]["sunday"] = date
             schedules[schedule_name]["first_day"] = schedules[schedule_name]["monday"]
             schedules[schedule_name]["last_day"] = schedules[schedule_name]["sunday"]
-            return 200, schedules[schedule_name]["monday"], schedules[schedule_name]["sunday"]
+            return 200, schedules[schedule_name]["id"]
         else:
-            return 409, schedules[schedule_name]["monday"], schedules[schedule_name]["sunday"]
+            return 409, schedules[schedule_name]["id"]
     else:
-        return 404, schedules[schedule_name]["monday"], schedules[schedule_name]["sunday"]
+        return 404, schedules[schedule_name]["id"]
 
 def delete_schedule(schedule_id):
     continue_path=False
@@ -208,6 +208,6 @@ def delete_schedule(schedule_id):
                 continue_path=True
     if continue_path:
         del schedules[schedule_name]
-        return 200, schedule_name
+        return 200, schedule_id
     else:
         return 404, "Schedule not found"

@@ -40,8 +40,7 @@ def read_sellers(seller_id):
             if sellers[name]["ID"] == seller_id:
                 temp_list.append(sellers[name].values())
     if temp_list:
-        print(tabulate(temp_list, headers=listed_names, tablefmt="grid"))
-        return 200, temp_list
+        return 200, sellers[name]
     else:
         return 404, "not found"
 
@@ -82,4 +81,4 @@ def delete_sellers(id_select):
     if not found_id:
         return 404, "not found"
     else:
-        return 200, name
+        return 200, id_select

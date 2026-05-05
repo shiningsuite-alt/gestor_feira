@@ -156,9 +156,9 @@ def create_session(sellers_id,schedule_name,day_select,time_select):
         sessions_dict[schedule_name][day][time][session_name]["time"]=time
         sessions_dict[schedule_name][day][time][session_name]["day"]=day
         sessions_dict[schedule_name][day][time][session_name]["id"]=session_id
-        return 200, "success", sellers_id, sessions_dict, day, time
+        return 200, sessions_dict[schedule_name][day][time][session_name]
     else:
-        return 403, "failure", sellers_id, sessions_dict, day, time
+        return 403, "failure"
 
 def read_session(session_id):
     found_session = False
@@ -194,11 +194,11 @@ def update_session(session_id,schedule_name,day_select,time_select):
             del sessions_dict[schedule_name][old_day][old_time][session_name]
             sessions_dict[schedule_name][day][time][session_name]["time"]=time
             sessions_dict[schedule_name][day][time][session_name]["day"]=day
-            return 200, "success", sessions_dict[schedule_name][day][time][session_name], day, time
+            return 200,sessions_dict[schedule_name][day][time][session_name]
         else:
-            return 403, "failure", sessions_dict, day, time
+            return 403, "failure"
     else:
-        return 404, "failure", sessions_dict, day, time
+        return 404, "failure"
 
 def delete_session(session_id):
     found_session=False
@@ -211,6 +211,6 @@ def delete_session(session_id):
                             del sessions_dict[schedules_count][days_count][times_count][sessions_name]
                             found_session=True
     if found_session:
-        return 200, sessions_dict[schedules_count][days_count][times_count][sessions_name][""]
+        return 200, session_id
     else:
         return 404, "failure"
