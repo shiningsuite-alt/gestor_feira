@@ -25,6 +25,21 @@ from sellers import (
     delete_sellers,
     sellers
 )
+from schedule import (
+    create_schedule,
+    delete_schedule,
+    read_schedule,
+    update_schedule,
+    schedules
+)
+from sessions import (
+    create_session,
+    read_session,
+    update_session,
+    delete_session,
+    sessions_dict,
+    default_session_dict
+)
 
 save_file = Path("sellers.json")
 
@@ -35,8 +50,10 @@ def main():
         print("======Menu======")
         print("1 - Select seller")
         print("2 - Edit sellers")
-        print("3 - Leave")
-        make_choice=general_functions.validation_check_2(3)
+        print("3 - Sessions")
+        print("4 - Schedule")
+        print("5 - Leave")
+        make_choice=general_functions.validation_check_2(5)
         if make_choice == 1:
             name=input("Enter seller's name: ")
             name=name.lower()
@@ -217,10 +234,10 @@ def main():
         elif make_choice==2:
             while True:
                 print("========Editing sellers =======")
-                print("1 - Add seller")
-                print("2 - View seller")
-                print("3 - Edit seller")
-                print("4 - Remove seller")
+                print("1 - Create seller")
+                print("2 - Read seller")
+                print("3 - Update seller")
+                print("4 - Delete seller")
                 print("5 - Leave")
                 make_choice = general_functions.validation_check_2(5)
                 if make_choice == 1:
@@ -267,7 +284,183 @@ def main():
                     print("Leaving...")
                     general_functions.pause()
                     break
+        elif make_choice==3:
+            print("Write schedule id to create session")
+            schedule_id=general_functions.validation_check()
+            continue_path=False
+            for i in schedules:
+                if "id" in schedules[i]:
+                    if schedule_id==schedules[i]["id"]:
+                        schedule_name=i
+                        continue_path=True
+                        break
+            if continue_path:
+                if schedule_name not in sessions_dict:
+                    sessions_dict[schedule_name]=default_session_dict
+                print("========Sessions========")
+                print("1 - Create session")
+                print("2 - Read session")
+                print("3 - Update session")
+                print("4 - Delete session")
+                print("5 - Leave")
+                make_choice = general_functions.validation_check_2(5)
+                if make_choice==1:
+                    print("Input sellers id")
+                    sellers_id=general_functions.validation_check()
+                    print("=======Day select=======")
+                    print("1 - Monday")
+                    print("2 - Tuesday")
+                    print("3 - Wednesday")
+                    print("4 - Thursday")
+                    print("5 - Friday")
+                    print("6 - Saturday")
+                    print("7 - Sunday")
+                    day_select=general_functions.validation_check_3(1,7)
+                    print("=======Time select=======")
+                    print("1 - 8:00-9:00")
+                    print("2 - 9:00-10:00")
+                    print("3 - 10:00-11:00")
+                    print("4 - 11:00-12:00")
+                    print("5 - 12:00-13:00")
+                    print("6 - 13:00-14:00")
+                    print("7 - 14:00-15:00")
+                    print("8 - 15:00-16:00")
+                    print("9 - 16:00-17:00")
+                    print("10 - 17:00-18:00")
+                    time_select=general_functions.validation_check_3(1,10)
+                    return_code,msg,sellers_id,schedule_name,day,time=create_session(sellers_id,schedule_name,day_select,time_select)
+                    if return_code==200:
+                        print("Session for "+str(sellers_id)+" created on "+day+" at "+time+" of"+schedule_name)
+                    else:
+                        print("cannot add more than 20 sessions in this time")
+                elif make_choice==2:
+                    print("Input session id")
+                    session_id=general_functions.validation_check()
+                    return_code, return_session_dict=read_session(session_id)
+                    if return_code==200:
+                        print(return_session_dict)
+                    else:
+                        print("Session not found")
+                elif make_choice==3:
+                    print("Input session id")
+                    session_id=general_functions.validation_check()
+                    print("=======Day select=======")
+                    print("1 - Monday")
+                    print("2 - Tuesday")
+                    print("3 - Wednesday")
+                    print("4 - Thursday")
+                    print("5 - Friday")
+                    print("6 - Saturday")
+                    print("7 - Sunday")
+                    day_select = general_functions.validation_check_3(1, 7)
+                    print("=======Time select=======")
+                    print("1 - 8:00-9:00")
+                    print("2 - 9:00-10:00")
+                    print("3 - 10:00-11:00")
+                    print("4 - 11:00-12:00")
+                    print("5 - 12:00-13:00")
+                    print("6 - 13:00-14:00")
+                    print("7 - 14:00-15:00")
+                    print("8 - 15:00-16:00")
+                    print("9 - 16:00-17:00")
+                    print("10 - 17:00-18:00")
+                    time_select = general_functions.validation_check_3(1, 10)
+                    return_code, msg, sessions_dict, day, time=update_session(session_id,schedule_name,day_select,time_select)
+                    if return_code==200:
+                        print(sessions_dict)
+                    elif return_code==404:
+                        print("Session not found")
+                    else:
+                        print("Cannot add more than 20 sessions in this time")
+                elif make_choice==4:
+                    print("Input session id")
+                    session_id=general_functions.validation_check()
+                    return_code, return_session_id=delete_session(session_id)
+                    if return_code==200:
+                        print(str(return_session_id)+" deleted successfully")
+                    else:
+                        print("Session not found")
+                else:
+                    print("Leaving...")
+            else:
+                print("Schedule not found")
+        elif make_choice==4:
+            while True:
+                print("========Editing Schedule =======")
+                print("1 - Create Schedule")
+                print("2 - Read Schedule")
+                print("3 - Update Schedule")
+                print("4 - Delete Schedule")
+                print("5 - Leave")
+                make_choice = general_functions.validation_check_2(5)
+                if make_choice == 1:
+                    print("Input year")
+                    year=general_functions.validation_check()
+                    print("Input month")
+                    month=general_functions.validation_check_2(12)
+                    print("Input day")
+                    if month==1 or month==3 or month==5 or month==7 or month==8 or month==10 or month==12:
+                        day=general_functions.validation_check_2(31)
+                    elif month==2:
+                        if year%4==0:
+                            day=general_functions.validation_check_2(29)
+                        else:
+                            day = general_functions.validation_check_2(28)
+                    else:
+                        day = general_functions.validation_check_2(30)
+                    return_code, schedule_id=create_schedule(day,month,year)
+                    if return_code==200:
+                        print("Schedule added with id "+ str(schedule_id))
+                    else:
+                        print("Schedule not added as schedule for that week already exists")
+                    general_functions.pause()
+                elif make_choice == 2:
+                    print("Input ID:")
+                    schedule_id=general_functions.validation_check()
+                    return_code,schedule_dict=read_schedule(schedule_id)
+                    if return_code==200:
+                        print(schedule_dict)
+                    else:
+                        print("Schedule not found")
+                elif make_choice == 3:
+                    print("Input ID:")
+                    schedule_id=general_functions.validation_check()
+                    print("Input year")
+                    year=general_functions.validation_check()
+                    print("Input month")
+                    month=general_functions.validation_check_2(12)
+                    print("Input day")
+                    if month==1 or month==3 or month==5 or month==7 or month==8 or month==10 or month==12:
+                        day=general_functions.validation_check_2(31)
+                    elif month==2:
+                        if year%4==0:
+                            day=general_functions.validation_check_2(29)
+                        else:
+                            day = general_functions.validation_check_2(28)
+                    else:
+                        day = general_functions.validation_check_2(30)
+                    return_code, schedule_first_day,schedule_last_day=update_schedule(day,month,year,schedule_id)
+                    if return_code==200:
+                        print("Schedule date changed from "+ schedule_first_day+" to "+ schedule_last_day)
+                    elif return_code==404:
+                        print("Schedule not found")
+                    else:
+                        print("Schedule not added as schedule for that week already exists")
+                    general_functions.pause()
+                elif make_choice == 4:
+                    print("Input ID:")
+                    schedule_id=general_functions.validation_check()
+                    return_code,schedule_name=delete_schedule(schedule_id)
+                    if return_code==200:
+                        print(schedule_name+" deleted successfully")
+                    else:
+                        print(schedule_name)
+                else:
+                    print("leaving...")
+                    general_functions.pause()
+                    break
         else:
             exit()
 
-main()
+if __name__ == "__main__":
+    main()
