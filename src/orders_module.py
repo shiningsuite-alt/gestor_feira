@@ -1,6 +1,6 @@
 import general_functions
-from items_file import items
-from items_file import lists
+from product import items
+from product import lists
 
 default_sales = {
     "temp_order":{

@@ -1,24 +1,24 @@
 import general_functions
 from tabulate import tabulate
 
+listed_names=[]
+headers= [
+    "Id",
+    "Name",
+    "Product type",
+    "Time",
+    "Day",
+    "Description"
+]
+
 sellers={
-    "listed_names": [
-    ],
-    "headers": [
-        "Id",
-        "Name",
-        "Product type",
-        "Time",
-        "Day",
-        "Description"
-    ]
 }
 
 def create_seller(name, product_type,extra_description):
     sellers[name]={}
     counter = 1
-    if name not in sellers["listed_names"]:
-        sellers["listed_names"].append(name)
+    if name not in listed_names:
+        listed_names.append(name)
     counter=1
     for i in sellers:
         if "ID" in sellers[i]:
@@ -40,8 +40,7 @@ def read_sellers(seller_id):
             if sellers[name]["ID"] == seller_id:
                 temp_list.append(sellers[name].values())
     if temp_list:
-        print(tabulate(temp_list, headers=sellers["headers"], tablefmt="grid"))
-        return 200, temp_list
+        return 200, sellers[name]
     else:
         return 404, "not found"
 
@@ -53,8 +52,8 @@ def update_seller(seller_id,new_name, product_type,extra_description):
                 name=i
             found=True
     if found:
-        if new_name not in sellers["listed_names"]:
-            sellers["listed_names"].append(new_name)
+        if new_name not in listed_names:
+            listed_names.append(new_name)
         if sellers[name]["name"] != new_name:
             sellers[new_name]=sellers[name]
             del sellers[name]
@@ -82,4 +81,4 @@ def delete_sellers(id_select):
     if not found_id:
         return 404, "not found"
     else:
-        return 200, name
+        return 200, id_select
