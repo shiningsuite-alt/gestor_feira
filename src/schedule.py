@@ -17,6 +17,7 @@ schedule_default={
 def save_schedule():
     with open(schedules_file, "w", encoding="utf-8") as ficheiro:
         json.dump(schedules, ficheiro, indent=4, ensure_ascii=False)
+
 def load_schedule():
     global schedules
     if os.path.exists(schedules_file):
@@ -113,10 +114,10 @@ def create_schedule(day,month,year):
         save_schedule()
         return 200, schedules[schedule_name]["id"]
     else:
-        save_schedule()
         return 409, "Already exists"
 
 def read_schedule(schedule_id):
+    load_schedule()
     continue_path=False
     for i in schedules:
         if "id" in schedules[i]:
@@ -214,10 +215,8 @@ def update_schedule(day,month,year,schedule_id):
             save_schedule()
             return 200, schedules[schedule_name]["id"]
         else:
-            save_schedule()
             return 409, schedules[schedule_name]["id"]
     else:
-        save_schedule()
         return 404, schedules[schedule_name]["id"]
 
 def delete_schedule(schedule_id):
@@ -233,5 +232,4 @@ def delete_schedule(schedule_id):
         save_schedule()
         return 200, schedule_id
     else:
-        save_schedule()
         return 404, "Schedule not found"

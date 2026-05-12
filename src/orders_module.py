@@ -19,6 +19,7 @@ sales = {
 def save_orders():
     with open(orders_file, "w", encoding="utf-8") as ficheiro:
         json.dump(sales, ficheiro, indent=4, ensure_ascii=False)
+
 def load_orders():
     global sales
     if os.path.exists(orders_file):
@@ -54,7 +55,6 @@ def create_item_order(item_id,item_quantity,seller_name):
         save_orders()
         return 200, "success"
     else:
-        save_orders()
         return 404, "not found"
 
 def delete_item_order(item_name,seller_name):
@@ -66,7 +66,6 @@ def delete_item_order(item_name,seller_name):
         save_orders()
         return 200, "success"
     else:
-        save_orders()
         return 404, "not found"
 
 def update_item_order(item_name,item_quantity,seller_name):
@@ -80,10 +79,10 @@ def update_item_order(item_name,item_quantity,seller_name):
         save_orders()
         return 200, "success"
     else:
-        save_orders()
         return 304, "no change"
 
 def read_item_order(seller_name):
+    load_orders()
     if len(sales[seller_name]["temp_order"]["items[seller_name]"]) > 0:
         counter = 1
         for i in sales[seller_name]["temp_order"]["items[seller_name]"].keys():

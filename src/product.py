@@ -15,6 +15,7 @@ lists= {
 def guardar_produtos():
     with open(products_file, "w", encoding="utf-8") as ficheiro:
         json.dump(items, ficheiro, indent=4, ensure_ascii=False)
+
 def carregar_produtos():
     global items
     if os.path.exists(products_file):
@@ -44,7 +45,6 @@ def create_product(name,price,quantity,item_class, seller_name):
         guardar_produtos()
         return 200, name
     else:
-        guardar_produtos()
         return 409, "Already exists"
 
 def update_product(item_id,new_name,new_class,new_price,new_quantity, seller_name):
@@ -84,8 +84,8 @@ def update_product(item_id,new_name,new_class,new_price,new_quantity, seller_nam
     if items[seller_name][item_name]["class"] != new_quantity:
         items[seller_name]["quantities"][item_name] = new_quantity
         change=True
-    guardar_produtos()
     if change:
+        guardar_produtos()
         return 200, items[seller_name][item_name], items[seller_name]["quantities"][item_name]
     else:
         return 304, "no change"
@@ -104,13 +104,14 @@ def delete_product(item_id, seller_name):
                 break
             else:
                 failure = True
-    guardar_produtos()
     if failure:
         return 404, i
     else:
+        guardar_produtos()
         return 200, "success"
 
 def read_product_by_id(item_id, seller_name):
+    carregar_produtos()
     failure = True
     for i in items[seller_name].keys():
         if "id" in items[seller_name][i]:

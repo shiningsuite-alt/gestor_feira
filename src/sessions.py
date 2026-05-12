@@ -118,6 +118,7 @@ default_session_dict={
 def save_sellers():
     with open(sessions_file, "w", encoding="utf-8") as ficheiro:
         json.dump(sellers, ficheiro, indent=4, ensure_ascii=False)
+
 def load_sellers():
     global sessions_dict
     if os.path.exists(sessions_file):
@@ -168,13 +169,12 @@ def create_session(sellers_id,schedule_name,day_select,time_select):
             save_sellers()
             return 200, sessions_dict[schedule_name][day][time][session_name]
         else:
-            save_sellers()
             return 404, "seller not found"
     else:
-        save_sellers()
         return 403, "failure"
 
 def read_session(session_id):
+    load_sellers()
     found_session = False
     for schedule_name in sessions_dict:
         for days_count in sessions_dict[schedule_name]:
@@ -221,10 +221,8 @@ def update_session(session_id,schedule_name,day_select,time_select):
             save_sellers()
             return 200,sessions_dict[schedule_name][day][time][session_name]
         else:
-            save_sellers()
             return 403, "failure"
     else:
-        save_sellers()
         return 404, "failure"
 
 def delete_session(session_id):
@@ -238,8 +236,8 @@ def delete_session(session_id):
                         if session_id==sessions_dict[schedules_count][days_count][times_count][sessions_name]["id"]:
                             del sessions_dict[schedules_count][days_count][times_count][sessions_name]
                             found_session=True
-    save_sellers()
     if found_session:
+        save_sellers()
         return 200, session_id
     else:
         return 404, "failure"
