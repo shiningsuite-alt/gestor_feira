@@ -1,7 +1,6 @@
 import general_functions
 import json
 import os
-from tabulate import tabulate
 sellers_file = "sellers.json"
 
 listed_names=[]
