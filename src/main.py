@@ -1,5 +1,4 @@
 import general_functions
-from tabulate import tabulate
 from pathlib import Path
 from product import (
     create_product,
