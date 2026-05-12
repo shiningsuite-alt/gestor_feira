@@ -1,21 +1,35 @@
 from datetime import datetime,timedelta
+import os
+import json
+schedules_file="schedules.json"
 
 schedule_default={
     "id":0,
-    "monday":datetime(0000,1,1),
-    "tuesday":datetime(0000,1,2),
-    "wednesday": datetime(0000, 1, 3),
-    "thursday": datetime(0000, 1, 4),
-    "friday": datetime(0000, 1, 5),
-    "saturday": datetime(0000, 1, 6),
-    "sunday": datetime(0000, 1, 7),
+    "monday":datetime(2000,1,1),
+    "tuesday":datetime(2000,1,2),
+    "wednesday": datetime(2000, 1, 3),
+    "thursday": datetime(2000, 1, 4),
+    "friday": datetime(2000, 1, 5),
+    "saturday": datetime(2000, 1, 6),
+    "sunday": datetime(2000, 1, 7),
 }
+
+def save_sellers():
+    with open(schedules_file, "w", encoding="utf-8") as ficheiro:
+        json.dump(schedules, ficheiro, indent=4, ensure_ascii=False)
+def load_sellers():
+    global schedules
+    if os.path.exists(schedules_file):
+        with open(schedules_file, "r", encoding="utf-8") as ficheiro:
+            schedules = json.load(ficheiro)
+    else:
+        schedules = {}
 
 schedules={}
 
 def create_schedule(day,month,year):
     big_break=True
-    continue_path=False
+    continue_path=True
     date = datetime(year,month,day)
     for i in schedules:
         for j in schedules[i]:
