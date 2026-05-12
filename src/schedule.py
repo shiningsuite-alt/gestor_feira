@@ -1,21 +1,37 @@
 from datetime import datetime,timedelta
+import os
+import json
+schedules_file="schedules.json"
 
 schedule_default={
     "id":0,
-    "monday":datetime(0000,1,1),
-    "tuesday":datetime(0000,1,2),
-    "wednesday": datetime(0000, 1, 3),
-    "thursday": datetime(0000, 1, 4),
-    "friday": datetime(0000, 1, 5),
-    "saturday": datetime(0000, 1, 6),
-    "sunday": datetime(0000, 1, 7),
+    "monday":datetime(2000,1,1),
+    "tuesday":datetime(2000,1,2),
+    "wednesday": datetime(2000, 1, 3),
+    "thursday": datetime(2000, 1, 4),
+    "friday": datetime(2000, 1, 5),
+    "saturday": datetime(2000, 1, 6),
+    "sunday": datetime(2000, 1, 7),
 }
+
+def save_schedule():
+    with open(schedules_file, "w", encoding="utf-8") as ficheiro:
+        json.dump(schedules, ficheiro, indent=4, ensure_ascii=False)
+
+def load_schedule():
+    global schedules
+    if os.path.exists(schedules_file):
+        with open(schedules_file, "r", encoding="utf-8") as ficheiro:
+            schedules = json.load(ficheiro)
+    else:
+        schedules = {}
 
 schedules={}
 
 def create_schedule(day,month,year):
+    load_schedule()
     big_break=True
-    continue_path=False
+    continue_path=True
     date = datetime(year,month,day)
     for i in schedules:
         for j in schedules[i]:
@@ -95,11 +111,13 @@ def create_schedule(day,month,year):
             schedules[schedule_name]["sunday"]=date
         schedules[schedule_name]["first_day"]=schedules[schedule_name]["monday"]
         schedules[schedule_name]["last_day"] = schedules[schedule_name]["sunday"]
+        save_schedule()
         return 200, schedules[schedule_name]["id"]
     else:
         return 409, "Already exists"
 
 def read_schedule(schedule_id):
+    load_schedule()
     continue_path=False
     for i in schedules:
         if "id" in schedules[i]:
@@ -112,6 +130,7 @@ def read_schedule(schedule_id):
         return 404, "Schedule not found"
 
 def update_schedule(day,month,year,schedule_id):
+    load_schedule()
     continue_path=False
     for i in schedules:
         if "id" in schedules[i]:
@@ -193,6 +212,7 @@ def update_schedule(day,month,year,schedule_id):
                 schedules[schedule_name]["sunday"] = date
             schedules[schedule_name]["first_day"] = schedules[schedule_name]["monday"]
             schedules[schedule_name]["last_day"] = schedules[schedule_name]["sunday"]
+            save_schedule()
             return 200, schedules[schedule_name]["id"]
         else:
             return 409, schedules[schedule_name]["id"]
@@ -200,6 +220,7 @@ def update_schedule(day,month,year,schedule_id):
         return 404, schedules[schedule_name]["id"]
 
 def delete_schedule(schedule_id):
+    load_schedule()
     continue_path=False
     for i in schedules:
         if "id" in schedules[i]:
@@ -208,6 +229,7 @@ def delete_schedule(schedule_id):
                 continue_path=True
     if continue_path:
         del schedules[schedule_name]
+        save_schedule()
         return 200, schedule_id
     else:
         return 404, "Schedule not found"

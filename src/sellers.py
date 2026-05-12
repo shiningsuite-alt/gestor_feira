@@ -1,5 +1,7 @@
 import general_functions
-from tabulate import tabulate
+import json
+import os
+sellers_file = "sellers.json"
 
 listed_names=[]
 headers= [
@@ -14,7 +16,20 @@ headers= [
 sellers={
 }
 
+def save_sellers():
+    with open(sellers_file, "w", encoding="utf-8") as ficheiro:
+        json.dump(sellers, ficheiro, indent=4, ensure_ascii=False)
+
+def load_sellers():
+    global sellers
+    if os.path.exists(sellers_file):
+        with open(sellers_file, "r", encoding="utf-8") as ficheiro:
+            sellers = json.load(ficheiro)
+    else:
+        sellers = {}
+
 def create_seller(name, product_type,extra_description):
+    load_sellers()
     sellers[name]={}
     counter = 1
     if name not in listed_names:
@@ -31,9 +46,11 @@ def create_seller(name, product_type,extra_description):
         sellers[name]["extra_description"]="none"
     else:
         sellers[name]["extra_description"]=extra_description
+    save_sellers()
     return 200, sellers[name]
 
 def read_sellers(seller_id):
+    load_sellers()
     temp_list = []
     for name in sellers:
         if "ID" in sellers[name]:
@@ -45,12 +62,14 @@ def read_sellers(seller_id):
         return 404, "not found"
 
 def update_seller(seller_id,new_name, product_type,extra_description):
-    found=False
+    load_sellers()
     for i in sellers:
-        if "ID" in sellers:
-            if sellers[i]["ID"]==seller_id:
-                name=i
+        if sellers[i]["ID"]==seller_id:
+            name=i
             found=True
+            break
+        else:
+            found=False
     if found:
         if new_name not in listed_names:
             listed_names.append(new_name)
@@ -65,11 +84,13 @@ def update_seller(seller_id,new_name, product_type,extra_description):
             sellers[name]["extra_description"]="none"
         else:
             sellers[name]["extra_description"]=extra_description
+        save_sellers()
         return 200, sellers[name]
     else:
         return 404, "not found"
 
 def delete_sellers(id_select):
+    load_sellers()
     for name in sellers:
         if "ID" in sellers[name]:
             if sellers[name]["ID"] == id_select:
@@ -81,4 +102,5 @@ def delete_sellers(id_select):
     if not found_id:
         return 404, "not found"
     else:
+        save_sellers()
         return 200, id_select
