@@ -1,13 +1,12 @@
-from datetime import datetime,timedelta
 import json
 import os
-from datetime import date
+from datetime import datetime,timedelta,date
 from logger import get_logger
 import general_functions
 
 log = get_logger("schedule")
 
-schedules_file="schedules.json"
+SCHEDULES_FILE="schedules.json"
 
 schedule_default={
     "id":0,
@@ -21,27 +20,27 @@ schedule_default={
 }
 
 def save_schedule():
-    with open(schedules_file, "w", encoding="utf-8") as ficheiro:
-        log.debug("Ficha de horarios aberto '%s'.", schedules_file)
+    with open(SCHEDULES_FILE, "w", encoding="utf-8") as ficheiro:
+        log.debug("Ficha de horarios aberto '%s'.", SCHEDULES_FILE)
         json.dump(schedules, ficheiro, indent=4, ensure_ascii=False)
-    log.debug("Horarios guardados em '%s'.", schedules_file)
+    log.debug("Horarios guardados em '%s'.", SCHEDULES_FILE)
 
 def load_schedule():
     global schedules
-    if os.path.exists(schedules_file):
-        log.debug("Ficha de horarios encontrado '%s'.", schedules_file)
-        with open(schedules_file, "r", encoding="utf-8") as ficheiro:
-            log.debug("Ficha de horarios aberto '%s'.", schedules_file)
+    if os.path.exists(SCHEDULES_FILE):
+        log.debug("Ficha de horarios encontrado '%s'.", SCHEDULES_FILE)
+        with open(SCHEDULES_FILE, "r", encoding="utf-8") as ficheiro:
+            log.debug("Ficha de horarios aberto '%s'.", SCHEDULES_FILE)
             schedules = json.load(ficheiro)
-        log.debug("Ficha de horarios Carregado '%s'.", schedules_file)
+        log.debug("Ficha de horarios Carregado '%s'.", SCHEDULES_FILE)
     else:
-        log.debug("Ficha de horarios não encontrado, sistema vai usar dicionario vazia '%s'.", schedules_file)
+        log.debug("Ficha de horarios não encontrado, sistema vai usar dicionario vazia '%s'.", SCHEDULES_FILE)
         schedules = {}
 
 schedules={}
 
 def create_schedule(day,month,year):
-    log.info("Criar horarios '%s'.", schedules_file)
+    log.info("Criar horarios '%s'.", SCHEDULES_FILE)
     load_schedule()
     big_break=True
     continue_path=True

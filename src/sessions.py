@@ -1,15 +1,14 @@
-import general_functions
 import json
-from schedule import schedules
-from sellers import sellers
-from datetime import datetime,timedelta,date
 import os
+from datetime import datetime,timedelta,date
 from logger import get_logger
 import general_functions
+from schedule import schedules
+from sellers import sellers
 
 log = get_logger("sessions")
 
-sessions_file="sessions.json"
+SESSIONS_FILE="sessions.json"
 
 list_of_days=[
     "monday",
@@ -120,22 +119,22 @@ default_session_dict={
 }
 
 def save_sellers():
-    with open(sessions_file, "w", encoding="utf-8") as ficheiro:
-        log.debug("Ficheiro de ficha sessão aberto '%s'.", sessions_file)
+    with open(SESSIONS_FILE, "w", encoding="utf-8") as ficheiro:
+        log.debug("Ficheiro de ficha sessão aberto '%s'.", SESSIONS_FILE)
         json.dump(sellers, ficheiro, indent=4, ensure_ascii=False)
-    log.debug("Sessões guardados em '%s'.", sessions_file)
+    log.debug("Sessões guardados em '%s'.", SESSIONS_FILE)
 
 def load_sellers():
     global sessions_dict
-    if os.path.exists(sessions_file):
-        log.debug("Ficheiro de ficha encontrado '%s'.", sessions_file)
-        with open(sessions_file, "r", encoding="utf-8") as ficheiro:
-            log.debug("Ficheiro de ficha sessão aberto '%s'.", sessions_file)
+    if os.path.exists(SESSIONS_FILE):
+        log.debug("Ficheiro de ficha encontrado '%s'.", SESSIONS_FILE)
+        with open(SESSIONS_FILE, "r", encoding="utf-8") as ficheiro:
+            log.debug("Ficheiro de ficha sessão aberto '%s'.", SESSIONS_FILE)
             sessions_dict = json.load(ficheiro)
-        log.debug("Sessões carregado em '%s'.", sessions_file)
+        log.debug("Sessões carregado em '%s'.", SESSIONS_FILE)
     else:
         sessions_dict = {}
-        log.debug("Ficheiro de ficha não encontrado, sistema vai usar dicionario vazio '%s'.", sessions_file)
+        log.debug("Ficheiro de ficha não encontrado, sistema vai usar dicionario vazio '%s'.", SESSIONS_FILE)
 
 sessions_dict={}
 

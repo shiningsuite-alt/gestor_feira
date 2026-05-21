@@ -1,14 +1,12 @@
-import general_functions
 import json
-import logging
-from datetime import date
 import os
+from datetime import date
 from logger import get_logger
 import general_functions
 
 log = get_logger("products")
 
-products_file="products.json"
+PRODUCT_FILE="products.json"
 items =  {
 }
 default_items =  {
@@ -19,22 +17,22 @@ lists= {
 }
 
 def guardar_produtos():
-    with open(products_file, "w", encoding="utf-8") as ficheiro:
-        log.debug("Arquivo dos produtos aberto '%s'.", products_file)
+    with open(PRODUCT_FILE, "w", encoding="utf-8") as ficheiro:
+        log.debug("Arquivo dos produtos aberto '%s'.", PRODUCT_FILE)
         json.dump(items, ficheiro, indent=4, ensure_ascii=False)
-    log.debug("Produtos guardados em '%s'.", products_file)
+    log.debug("Produtos guardados em '%s'.", PRODUCT_FILE)
 
 def carregar_produtos():
     global items
-    if os.path.exists(products_file):
-        log.debug("Ficheiro dos produtos encontrado '%s'.", products_file)
-        with open(products_file, "r", encoding="utf-8") as ficheiro:
-            log.debug("Arquivo dos produtos aberto '%s'.", products_file)
+    if os.path.exists(PRODUCT_FILE):
+        log.debug("Ficheiro dos produtos encontrado '%s'.", PRODUCT_FILE)
+        with open(PRODUCT_FILE, "r", encoding="utf-8") as ficheiro:
+            log.debug("Arquivo dos produtos aberto '%s'.", PRODUCT_FILE)
             items = json.load(ficheiro)
         log.debug("Produtos carregados: %d registo(s).", len(items))
     else:
         items = {}
-        log.debug("Ficheiro '%s' nao encontrado. Base iniciada vazia: %d registo(s).", products_file)
+        log.debug("Ficheiro '%s' nao encontrado. Base iniciada vazia: %d registo(s).", PRODUCT_FILE)
 
 def create_product(name,price,quantity,item_class, seller_name):
     log.info("Criar Produto: nome='%s'.", name)
@@ -76,7 +74,7 @@ def update_product(item_id,new_name,new_class,new_price,new_quantity, seller_nam
     change = False
     things_changed=[]
     for i in items[seller_name].keys():
-        log.debug("Pesquisa de produto iniciada '%s'.", products_file)
+        log.debug("Pesquisa de produto iniciada '%s'.", PRODUCT_FILE)
         if "id" in items[seller_name][i]:
             if item_id == items[seller_name][i]["id"]:
                 item_name = i
@@ -89,7 +87,7 @@ def update_product(item_id,new_name,new_class,new_price,new_quantity, seller_nam
         log.error("Produto não foi encontrado: id='%s'.", item_id)
         return 404, "Não encontrado"
     else:
-        log.debug("Produto foi encontrado '%s'.", products_file)
+        log.debug("Produto foi encontrado '%s'.", PRODUCT_FILE)
         if item_name!=new_name:
             items[seller_name][new_name] = items[seller_name][item_name]
             del items[seller_name][item_name]

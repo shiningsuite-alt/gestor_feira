@@ -1,15 +1,12 @@
-import general_functions
 import json
-from tabulate import tabulate
-import logging
-from datetime import date
 import os
+from datetime import date
 from logger import get_logger
 import general_functions
 
 log = get_logger("sellers")
 
-sellers_file = "sellers.json"
+SELLERS_FILE = "sellers.json"
 
 listed_names=[]
 headers= [
@@ -25,21 +22,21 @@ sellers={
 }
 
 def save_sellers():
-    with open(sellers_file, "w", encoding="utf-8") as ficheiro:
-        log.debug("Ficha de sellers aberto", sellers_file)
+    with open(SELLERS_FILE, "w", encoding="utf-8") as ficheiro:
+        log.debug("Ficha de sellers aberto", SELLERS_FILE)
         json.dump(sellers, ficheiro, indent=4, ensure_ascii=False)
-    log.debug("Vendedores guardados em '%s'.", sellers_file)
+    log.debug("Vendedores guardados em '%s'.", SELLERS_FILE)
 
 def load_sellers():
     global sellers
-    if os.path.exists(sellers_file):
-        log.debug("Ficha vendedores encontrada '%s'.", sellers_file)
-        with open(sellers_file, "r", encoding="utf-8") as ficheiro:
-            log.debug("Ficha de sellers aberto '%s'.", sellers_file)
+    if os.path.exists(SELLERS_FILE):
+        log.debug("Ficha vendedores encontrada '%s'.", SELLERS_FILE)
+        with open(SELLERS_FILE, "r", encoding="utf-8") as ficheiro:
+            log.debug("Ficha de sellers aberto '%s'.", SELLERS_FILE)
             sellers = json.load(ficheiro)
-        log.info("Ficha vendedores guardado '%s'.", sellers_file)
+        log.info("Ficha vendedores guardado '%s'.", SELLERS_FILE)
     else:
-        log.debug("Ficha vendedores não foi encontrada '%s'.", sellers_file)
+        log.debug("Ficha vendedores não foi encontrada '%s'.", SELLERS_FILE)
         sellers = {}
 
 def create_seller(name, product_type,extra_description):

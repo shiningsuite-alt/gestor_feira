@@ -1,16 +1,14 @@
-import general_functions
 import json
-from product import items
-from product import lists
-import logging
-from datetime import date
 import os
+from datetime import date
 from logger import get_logger
 import general_functions
+from product import items
+from product import lists
 
 log = get_logger("orders")
 
-orders_file="orders.json"
+ORDERS_FILE="orders.json"
 default_sales = {
     "temp_order":{
         "quantities":{},
@@ -23,22 +21,22 @@ sales = {
 }
 
 def save_orders():
-    with open(orders_file, "w", encoding="utf-8") as ficheiro:
-        log.debug("Arquivo dos ordens aberto '%s'.", orders_file)
+    with open(ORDERS_FILE, "w", encoding="utf-8") as ficheiro:
+        log.debug("Arquivo dos ordens aberto '%s'.", ORDERS_FILE)
         json.dump(sales, ficheiro, indent=4, ensure_ascii=False)
-    log.debug("Ordens guardados em '%s'.", orders_file)
+    log.debug("Ordens guardados em '%s'.", ORDERS_FILE)
 
 def load_orders():
     global sales
-    if os.path.exists(orders_file):
-        log.debug("Arquivo dos ordens encontrado '%s'.", orders_file)
-        with open(orders_file, "r", encoding="utf-8") as ficheiro:
-            log.debug("Arquivo dos ordens aberto '%s'.", orders_file)
+    if os.path.exists(ORDERS_FILE):
+        log.debug("Arquivo dos ordens encontrado '%s'.", ORDERS_FILE)
+        with open(ORDERS_FILE, "r", encoding="utf-8") as ficheiro:
+            log.debug("Arquivo dos ordens aberto '%s'.", ORDERS_FILE)
             sales = json.load(ficheiro)
         log.debug("ordens carregados: %d registo(s).", len(sales))
     else:
         sales = {}
-        log.debug("Ficheiro '%s' nao encontrado. Base iniciada vazia: %d registo(s).", orders_file)
+        log.debug("Ficheiro '%s' nao encontrado. Base iniciada vazia: %d registo(s).", ORDERS_FILE)
 
 def create_item_order(item_id,item_quantity,seller_name):
     log.info("Adicionar item para order: id='%s'.", item_id)
