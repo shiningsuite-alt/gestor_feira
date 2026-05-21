@@ -1,7 +1,12 @@
-from datetime import datetime,timedelta
-import os
 import json
-schedules_file="schedules.json"
+import os
+from datetime import datetime,timedelta,date
+from logger import get_logger
+import general_functions
+
+log = get_logger("schedule")
+
+SCHEDULES_FILE="schedules.json"
 
 schedule_default={
     "id":0,
@@ -15,30 +20,39 @@ schedule_default={
 }
 
 def save_schedule():
-    with open(schedules_file, "w", encoding="utf-8") as ficheiro:
+    with open(SCHEDULES_FILE, "w", encoding="utf-8") as ficheiro:
+        log.debug("Ficha de horarios aberto '%s'.", SCHEDULES_FILE)
         json.dump(schedules, ficheiro, indent=4, ensure_ascii=False)
+    log.debug("Horarios guardados em '%s'.", SCHEDULES_FILE)
 
 def load_schedule():
     global schedules
-    if os.path.exists(schedules_file):
-        with open(schedules_file, "r", encoding="utf-8") as ficheiro:
+    if os.path.exists(SCHEDULES_FILE):
+        log.debug("Ficha de horarios encontrado '%s'.", SCHEDULES_FILE)
+        with open(SCHEDULES_FILE, "r", encoding="utf-8") as ficheiro:
+            log.debug("Ficha de horarios aberto '%s'.", SCHEDULES_FILE)
             schedules = json.load(ficheiro)
+        log.debug("Ficha de horarios Carregado '%s'.", SCHEDULES_FILE)
     else:
+        log.debug("Ficha de horarios não encontrado, sistema vai usar dicionario vazia '%s'.", SCHEDULES_FILE)
         schedules = {}
 
 schedules={}
 
 def create_schedule(day,month,year):
+    log.info("Criar horarios '%s'.", SCHEDULES_FILE)
     load_schedule()
     big_break=True
     continue_path=True
     date = datetime(year,month,day)
+    log.debug("Check se existe um horario nesse semana iniciado '%s'.", date)
     for i in schedules:
         for j in schedules[i]:
             if type(schedules[i][j]) is datetime:
                 if schedules[i][j]==date:
                     continue_path=False
                     big_break=True
+                    log.debug("Já existe um horario nesse semana:'%s'.", date)
                     break
                 else:
                     continue_path=True
@@ -51,7 +65,9 @@ def create_schedule(day,month,year):
                 id_counter+=1
         schedule_name="schedule"+str(id_counter)
         schedules[schedule_name]={}
+        log.debug("nome de horario definido '%s'.", schedule_name)
         schedules[schedule_name]["id"]=id_counter
+        log.debug("Id de horario definido '%s'.", id_counter)
         week_day = date.weekday()
         if week_day == 0:
             schedules[schedule_name]["monday"]=date
@@ -109,34 +125,49 @@ def create_schedule(day,month,year):
             schedules[schedule_name]["friday"]=date+timedelta(days=-2)
             schedules[schedule_name]["saturday"]=date+timedelta(days=-1)
             schedules[schedule_name]["sunday"]=date
-        schedules[schedule_name]["first_day"]=schedules[schedule_name]["monday"]
-        schedules[schedule_name]["last_day"] = schedules[schedule_name]["sunday"]
+        log.debug("Segunda de horario definido '%s'.", schedules[schedule_name]["monday"])
+        log.debug("Terca de horario definido '%s'.", schedules[schedule_name]["tuesday"])
+        log.debug("Quarta de horario definido '%s'.", schedules[schedule_name]["wednesday"])
+        log.debug("Quinta de horario definido '%s'.", schedules[schedule_name]["thursday"])
+        log.debug("Sexta de horario definido '%s'.", schedules[schedule_name]["friday"])
+        log.debug("Sabado de horario definido '%s'.", schedules[schedule_name]["saturday"])
+        log.debug("Domingo de horario definido '%s'.", schedules[schedule_name]["sunday"])
         save_schedule()
+        log.info("Horario criado com sucesso '%s'.", date)
         return 200, schedules[schedule_name]["id"]
     else:
+        log.error("Horario já existe nesse semana '%s'.", date)
         return 409, "Already exists"
 
 def read_schedule(schedule_id):
+    log.info("Pesquisar horario '%s'.", schedule_id)
     load_schedule()
     continue_path=False
+    log.debug("Pesquisa de horario iniciado '%s'.", schedule_id)
     for i in schedules:
         if "id" in schedules[i]:
             if schedules[i]["id"] == schedule_id:
                 schedule_name=i
                 continue_path=True
+                log.debug("Horario encontrado '%s'.", schedule_id)
     if continue_path:
+        log.info("Horario Encontrado com sucesso '%s'.", schedule_id)
         return 200, schedules[schedule_name]
     else:
+        log.error("Horario não encontrado '%s'.", schedule_id)
         return 404, "Schedule not found"
 
 def update_schedule(day,month,year,schedule_id):
+    log.info("Atualizar horario '%s'.", schedule_id)
     load_schedule()
     continue_path=False
+    log.debug("Pesquisa de horario iniciado '%s'.", schedule_id)
     for i in schedules:
         if "id" in schedules[i]:
             if schedules[i]["id"] == schedule_id:
                 schedule_name=i
                 continue_path=True
+                log.debug("horario encontrado '%s'.", schedule_id)
     if continue_path:
         big_break = False
         continue_path_2 = True
@@ -210,26 +241,39 @@ def update_schedule(day,month,year,schedule_id):
                 schedules[schedule_name]["friday"] = date + timedelta(days=-2)
                 schedules[schedule_name]["saturday"] = date + timedelta(days=-1)
                 schedules[schedule_name]["sunday"] = date
-            schedules[schedule_name]["first_day"] = schedules[schedule_name]["monday"]
-            schedules[schedule_name]["last_day"] = schedules[schedule_name]["sunday"]
+            log.debug("Segunda de horario atualizado '%s'.", schedules[schedule_name]["monday"])
+            log.debug("Terca de horario atualizado '%s'.", schedules[schedule_name]["tuesday"])
+            log.debug("Quarta de horario atualizado '%s'.", schedules[schedule_name]["wednesday"])
+            log.debug("Quinta de horario atualizado '%s'.", schedules[schedule_name]["thursday"])
+            log.debug("Sexta de horario atualizado '%s'.", schedules[schedule_name]["friday"])
+            log.debug("Sabado de horario atualizado '%s'.", schedules[schedule_name]["saturday"])
+            log.debug("Domingo de horario atualizado '%s'.", schedules[schedule_name]["sunday"])
             save_schedule()
+            log.info("Horario atualizado com successo '%s'.", schedule_id)
             return 200, schedules[schedule_name]["id"]
         else:
+            log.error("Horario já existe nesse semana '%s'.", date)
             return 409, schedules[schedule_name]["id"]
     else:
+        log.error("Horario não encontrado '%s'.", schedule_id)
         return 404, schedules[schedule_name]["id"]
 
 def delete_schedule(schedule_id):
+    log.info("Removir horario '%s'.", schedule_id)
     load_schedule()
     continue_path=False
+    log.debug("Pesquisa de horario iniciado '%s'.", schedule_id)
     for i in schedules:
         if "id" in schedules[i]:
             if schedules[i]["id"] == schedule_id:
                 schedule_name=i
                 continue_path=True
+                log.debug("Horario encontrado '%s'.", schedule_id)
     if continue_path:
         del schedules[schedule_name]
         save_schedule()
+        log.info("Horario apagado com sucesso '%s'.", schedule_id)
         return 200, schedule_id
     else:
+        log.error("Horario não encontrado '%s'.", schedule_id)
         return 404, "Schedule not found"
