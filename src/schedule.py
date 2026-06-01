@@ -6,7 +6,7 @@ import general_functions
 
 log = get_logger("schedule")
 
-SCHEDULES_FILE="schedules.json"
+SCHEDULES_FILE="saves/schedules.json"
 
 schedule_default={
     "id":0,
@@ -19,10 +19,22 @@ schedule_default={
     "sunday": datetime(2000, 1, 7),
 }
 
+def json_serializer(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    else:
+        return obj
+
+def json_deserializer(obj):
+    if obj.get("__type__") == "datetime":
+        return datetime.fromisoformat(obj["value"])
+    else:
+        return obj
+
 def save_schedule():
     with open(SCHEDULES_FILE, "w", encoding="utf-8") as ficheiro:
         log.debug("Ficha de horarios aberto '%s'.", SCHEDULES_FILE)
-        json.dump(schedules, ficheiro, indent=4, ensure_ascii=False)
+        json.dump(schedules, ficheiro, indent=4,default=json_serializer)
     log.debug("Horarios guardados em '%s'.", SCHEDULES_FILE)
 
 def load_schedule():
@@ -31,7 +43,7 @@ def load_schedule():
         log.debug("Ficha de horarios encontrado '%s'.", SCHEDULES_FILE)
         with open(SCHEDULES_FILE, "r", encoding="utf-8") as ficheiro:
             log.debug("Ficha de horarios aberto '%s'.", SCHEDULES_FILE)
-            schedules = json.load(ficheiro)
+            schedules = json.load(ficheiro,object_hook=json_deserializer)
         log.debug("Ficha de horarios Carregado '%s'.", SCHEDULES_FILE)
     else:
         log.debug("Ficha de horarios não encontrado, sistema vai usar dicionario vazia '%s'.", SCHEDULES_FILE)
@@ -152,10 +164,10 @@ def read_schedule(schedule_id):
                 log.debug("Horario encontrado '%s'.", schedule_id)
     if continue_path:
         log.info("Horario Encontrado com sucesso '%s'.", schedule_id)
-        return 200, schedules[schedule_name]
+        return 200, schedules[schedule_name], schedule_name
     else:
         log.error("Horario não encontrado '%s'.", schedule_id)
-        return 404, "Schedule not found"
+        return 404, "Schedule not found", ""
 
 def update_schedule(day,month,year,schedule_id):
     log.info("Atualizar horario '%s'.", schedule_id)
@@ -256,7 +268,7 @@ def update_schedule(day,month,year,schedule_id):
             return 409, schedules[schedule_name]["id"]
     else:
         log.error("Horario não encontrado '%s'.", schedule_id)
-        return 404, schedules[schedule_name]["id"]
+        return 404, "failure"
 
 def delete_schedule(schedule_id):
     log.info("Removir horario '%s'.", schedule_id)

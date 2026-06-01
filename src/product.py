@@ -1,14 +1,12 @@
 import json
 import os
-from datetime import date
 from logger import get_logger
 import general_functions
 
 log = get_logger("products")
 
-PRODUCT_FILE="products.json"
-items =  {
-}
+PRODUCT_FILE="saves/products.json"
+items =  {}
 default_items =  {
     "quantities":{}
 }
@@ -32,7 +30,7 @@ def carregar_produtos():
         log.debug("Produtos carregados: %d registo(s).", len(items))
     else:
         items = {}
-        log.debug("Ficheiro '%s' nao encontrado. Base iniciada vazia: %d registo(s).", PRODUCT_FILE)
+        log.debug("Ficheiro nao encontrado. Base iniciada vazia:'%s'.", PRODUCT_FILE)
 
 def create_product(name,price,quantity,item_class, seller_name):
     log.info("Criar Produto: nome='%s'.", name)
@@ -58,18 +56,19 @@ def create_product(name,price,quantity,item_class, seller_name):
         log.debug("quantidade de item criado : id='%s'.", quantity)
         items[seller_name][name]["class"] = item_class
         log.debug("class de item criado : id='%s'.", item_class)
-        general_functions.pause()
         guardar_produtos()
         log.info("produto criado com sucesso : id='%s'.", name)
         return 200, name
     else:
-        guardar_produtos()
         log.error("item não criado, já existe um item que isso nome : id='%s'.", name)
         return 409, "Already exists"
 
 def update_product(item_id,new_name,new_class,new_price,new_quantity, seller_name):
     log.info("Atualizar Produto: id='%s'.", item_id)
     carregar_produtos()
+    if seller_name not in items:
+        items[seller_name] = default_items
+        log.debug("Dictionario de vendedor criado: id='%s'.", seller_name)
     failure = True
     change = False
     things_changed=[]
@@ -79,7 +78,6 @@ def update_product(item_id,new_name,new_class,new_price,new_quantity, seller_nam
             if item_id == items[seller_name][i]["id"]:
                 item_name = i
                 failure = False
-                general_functions.pause()
                 break
             else:
                 failure = True
@@ -109,8 +107,8 @@ def update_product(item_id,new_name,new_class,new_price,new_quantity, seller_nam
             items[seller_name]["quantities"][item_name] = new_quantity
             change=True
             log.debug("quantidade de produto atualizado '%s'.", new_quantity)
-        guardar_produtos()
         if change:
+            guardar_produtos()
             log.info("Produto Atualizado: id='%s'.", item_id)
             return 200, items[seller_name][item_name], items[seller_name]["quantities"][item_name]
         else:
@@ -120,6 +118,9 @@ def update_product(item_id,new_name,new_class,new_price,new_quantity, seller_nam
 def delete_product(item_id, seller_name):
     log.info("Remover Produto: id='%s'.", item_id)
     carregar_produtos()
+    if seller_name not in items:
+        items[seller_name] = default_items
+        log.debug("Dictionario de vendedor criado: id='%s'.", seller_name)
     failure = True
     log.debug("pesquisa de produto iniciado '%s'.", item_id)
     for i in items[seller_name].keys():
@@ -129,34 +130,35 @@ def delete_product(item_id, seller_name):
                 del items[seller_name][i]
                 del items[seller_name]["quantities"][i]
                 failure = False
-                general_functions.pause()
                 break
             else:
                 failure = True
-    guardar_produtos()
     if failure:
         log.error("Produto não foi encontrado: id='%s'.", item_id)
         return 404, i
     else:
+        guardar_produtos()
         log.info("Remover Produto: id='%s'.", item_id)
         return 200, "success"
 
 def read_product_by_id(item_id, seller_name):
     log.info("Pesquisar Produto: id='%s'.", item_id)
     carregar_produtos()
+    if seller_name not in items:
+        items[seller_name] = default_items
+        log.debug("Dictionario de vendedor criado: id='%s'.", seller_name)
     failure = True
     log.debug("pesquisa de produto iniciado '%s'.", item_id)
     for i in items[seller_name].keys():
         if "id" in items[seller_name][i]:
             if item_id == items[seller_name][i]["id"]:
                 failure = False
-                general_functions.pause()
                 break
             else:
                 failure = True
     if failure:
         log.error("Produto não foi encontrado: id='%s'.", item_id)
-        return 404, "not found"
+        return 404, "not found", "", ""
     else:
         log.info("Produto Encontrado: id='%s'.", item_id)
-        return 200, items[seller_name][i], items[seller_name]["quantities"][i]
+        return 200, items[seller_name][i], items[seller_name]["quantities"][i], i
