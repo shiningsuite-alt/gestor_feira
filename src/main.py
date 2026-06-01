@@ -1,4 +1,5 @@
 import general_functions
+import os
 from pathlib import Path
 from product import (
     create_product,
@@ -41,11 +42,8 @@ from sessions import (
     default_session_dict
 )
 
-save_file = Path("sellers.json")
-
-seller_saves={}
-
 def main():
+    os.makedirs("saves",exist_ok=True)
     while True:
         print("======Menu======")
         print("1 - Select seller")
@@ -55,11 +53,10 @@ def main():
         print("5 - Leave")
         make_choice=general_functions.validation_check_2(5)
         if make_choice == 1:
-            seller_id=int(input("Enter seller's name: "))
-            for i in sellers:
-                if seller_id==sellers[i]["ID"]:
-                    name=i
-            if name in listed_names:
+            seller_id=int(input("Enter seller's id: "))
+            name=""
+            return_code,seller_dict,name=read_sellers(seller_id)
+            if name!="":
                 while True:
                     print("======= Sales =======")
                     print("1 - Manage stock")
@@ -70,9 +67,9 @@ def main():
                         while True:
                             print("============Stock manager============")
                             print("1 - Create product")
-                            print("2 - Update product")
-                            print("3 - Delete product")
-                            print("4 - Read product by id")
+                            print("2 - Read product")
+                            print("3 - Update product")
+                            print("4 - Delete product")
                             print("5 - Leave")
                             make_choice = general_functions.validation_check_2(5)
                             if make_choice == 1:
@@ -112,51 +109,35 @@ def main():
                                 else:
                                     print("Item not added")
                             elif make_choice == 2:
-                                if name in items:
-                                    item_id=general_functions.validation_check()
-                                    return_code, return_item_values, return_item_quantity=read_product_by_id(item_id, name)
-                                    if return_code==200:
-                                        print(return_item_values+ " quantity:"+ str(return_item_quantity))
-                                    else:
-                                        print("Item not found")
+                                item_id=general_functions.validation_check()
+                                return_code, return_item_values, return_item_quantity, item_name=read_product_by_id(item_id, name)
+                                if return_code==200:
+                                    print(str(return_item_values)+ " quantity:"+ str(return_item_quantity))
                                 else:
-                                    print("Add items first")
+                                    print("Item not found")
                             elif make_choice == 3:
-                                if name in items:
-                                    print("input item id")
-                                    item_id = general_functions.validation_check()
-                                    new_name=input("Input new name:")
-                                    if len(lists["items_class"])>0:
-                                        print("Select class")
-                                        for i in range(len(lists["items_class"])):
-                                            print(str(i + 1) + " -  " + lists["items_class"][i])
-                                        class_select = general_functions.validation_check_2(len(lists["items_class"]))
-                                        new_class = lists["items_class"][class_select - 1]
-                                        print("Input new price")
-                                        new_price=general_functions.validation_check_float()
-                                        print("Input new quantity")
-                                        new_quantity=general_functions.validation_check()
-                                        return_code, return_item_values, return_item_quantity=update_product(item_id,new_name,new_class,new_price,new_quantity, name)
-                                    else:
-                                        return_code= 204, "no content"
-                                    if return_code == 200:
-                                        print(return_item_values+ " quantity:"+ str(return_item_quantity))
-                                    elif return_code == 204:
-                                        print("No class to choose from")
-                                    else:
-                                        print("Item not modified")
+                                print("input item id")
+                                item_id = general_functions.validation_check()
+                                new_name=input("Input new name:")
+                                new_class = input("Input class: ")
+                                print("Input new price")
+                                new_price=general_functions.validation_check_float()
+                                print("Input new quantity")
+                                new_quantity=general_functions.validation_check()
+                                return_code, return_item_values, return_item_quantity=update_product(item_id,new_name,new_class,new_price,new_quantity, name)
+                                if return_code == 200:
+                                    print(str(return_item_values)+ " quantity:"+ str(return_item_quantity))
+                                elif return_code == 204:
+                                    print("No class to choose from")
                                 else:
-                                    print("Add items first")
+                                    print("Item not found")
                             elif make_choice == 4:
-                                if name in items:
-                                    item_id = general_functions.validation_check()
-                                    return_code, return_name=delete_product(item_id, name)
-                                    if return_code==200:
-                                        print(return_name+" removed successfully")
-                                    else:
-                                        print("Item not found")
+                                item_id = general_functions.validation_check()
+                                return_code, return_name=delete_product(item_id, name)
+                                if return_code==200:
+                                    print(return_name+" removed successfully")
                                 else:
-                                    print("Add items first")
+                                    print("Item not found")
                             else:
                                 print("leaving...")
                                 general_functions.pause()
@@ -176,20 +157,18 @@ def main():
                                 item_id=general_functions.validation_check()
                                 print("Input item quantity")
                                 item_quantity=general_functions.validation_check()
-                                return_code=create_item_order(item_id,item_quantity,name)
+                                return_code,item_dict,item_quantity=create_item_order(item_id,item_quantity,name)
                                 if return_code==200:
-                                    print("Item added successfully to cart")
+                                    print(str(item_dict.values())+str(item_quantity))
                                 else:
                                     print("Item not found")
                             elif make_choice == 2:
-                                if name in sales:
-                                    return_code=read_item_order(name)
-                                    if return_code==200:
-                                        print("Item view successfully")
-                                    else:
-                                        print("No items to view")
+                                return_code,return_values=read_item_order(name)
+                                if return_code==200:
+                                    for i in return_values["items"]:
+                                        print(str(return_values["items"])+str(return_values["quantities"]))
                                 else:
-                                    print("Add items to order first")
+                                    print("No items to view")
                             elif make_choice == 3:
                                 if name in sales:
                                     if len(sales[name]["temp_order"]["items"]) > 0:
@@ -229,8 +208,6 @@ def main():
                             general_functions.pause()
                     else:
                         print("leaving")
-                        seller_saves[name]["items"]= items
-                        seller_saves[name]["sales"]= sales
                         general_functions.pause()
                         break
             else:
@@ -256,7 +233,7 @@ def main():
                 elif make_choice == 2:
                     print("Write seller id")
                     seller_id = general_functions.validation_check()
-                    return_code,return_seller_values=read_sellers(seller_id)
+                    return_code,return_seller_values, seller_name=read_sellers(seller_id)
                     if return_code==200:
                         for i in return_seller_values.items():
                             print(i)
@@ -292,14 +269,8 @@ def main():
         elif make_choice==3:
             print("Write schedule id to create session")
             schedule_id=general_functions.validation_check()
-            continue_path=False
-            for i in schedules:
-                if "id" in schedules[i]:
-                    if schedule_id==schedules[i]["id"]:
-                        schedule_name=i
-                        continue_path=True
-                        break
-            if continue_path:
+            return_code,schedule_dict,schedule_name=read_schedule(schedule_id)
+            if schedule_name!="":
                 while True:
                     if schedule_name not in sessions_dict:
                         sessions_dict[schedule_name]=default_session_dict
@@ -334,9 +305,11 @@ def main():
                         print("9 - 16:00-17:00")
                         print("10 - 17:00-18:00")
                         time_select=general_functions.validation_check_3(1,10)
-                        return_code,session_return_dict=create_session(seller_id,schedule_name,day_select,time_select)
+                        return_code,session_return_dict=create_session(seller_id,schedule_name,day_select,time_select,schedule_dict)
                         if return_code==200:
                             print(session_return_dict)
+                        elif return_code==404:
+                            print("Seller not found")
                         else:
                             print("cannot add more than 20 sessions in this time")
                     elif make_choice==2:
@@ -424,7 +397,7 @@ def main():
                 elif make_choice == 2:
                     print("Input ID:")
                     schedule_id=general_functions.validation_check()
-                    return_code,schedule_dict=read_schedule(schedule_id)
+                    return_code,schedule_dict,schedule_name=read_schedule(schedule_id)
                     if return_code==200:
                         for i in schedule_dict.items():
                             print(i)

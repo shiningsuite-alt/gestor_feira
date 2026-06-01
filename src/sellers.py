@@ -1,12 +1,11 @@
 import json
 import os
-from datetime import date
 from logger import get_logger
 import general_functions
 
 log = get_logger("sellers")
 
-SELLERS_FILE = "sellers.json"
+SELLERS_FILE = "saves/sellers.json"
 
 listed_names=[]
 headers= [
@@ -23,7 +22,7 @@ sellers={
 
 def save_sellers():
     with open(SELLERS_FILE, "w", encoding="utf-8") as ficheiro:
-        log.debug("Ficha de sellers aberto", SELLERS_FILE)
+        log.debug("Ficha de sellers aberto '%s'.", SELLERS_FILE)
         json.dump(sellers, ficheiro, indent=4, ensure_ascii=False)
     log.debug("Vendedores guardados em '%s'.", SELLERS_FILE)
 
@@ -70,24 +69,27 @@ def create_seller(name, product_type,extra_description):
 
 def read_sellers(seller_id):
     log.info("Pesquisa de vendedor '%s'.", seller_id)
-    temp_list = []
+    load_sellers()
+    found=False
     log.debug("Pesquisa de vendedor iniciado '%s'.", seller_id)
     for name in sellers:
-        if "ID" in sellers[name]:
-            if sellers[name]["ID"] == seller_id:
-                temp_list.append(sellers[name].values())
-                log.debug("Vendedor encontrado e informação guardado'%s'.", seller_id)
-    if temp_list:
+        if sellers[name]["ID"] == seller_id:
+            found=True
+            log.debug("Vendedor encontrado e informação guardado'%s'.", seller_id)
+            seller_name=name
+            break
+    if found:
         log.info("Vendedor encontrado com sucesso '%s'.", seller_id)
-        return 200, sellers[name]
+        return 200, sellers[seller_name], seller_name
     else:
         log.error("Vendedor não encontrado '%s'.", seller_id)
-        return 404, "not found"
+        return 404, "not found", ""
 
 def update_seller(seller_id,new_name, product_type,extra_description):
     log.info("Atualização de vendedor '%s'.", seller_id)
     load_sellers()
     log.debug("Pesquisa de vendedor iniciado '%s'.", seller_id)
+    found=False
     for i in sellers:
         if sellers[i]["ID"]==seller_id:
             name=i
@@ -126,6 +128,7 @@ def delete_sellers(id_select):
     log.info("Removir vendedor '%s'.", id_select)
     load_sellers()
     log.debug("Pesquisa de vendedor iniciado '%s'.", id_select)
+    found_id=False
     for name in sellers:
         if "ID" in sellers[name]:
             if sellers[name]["ID"] == id_select:
@@ -135,10 +138,10 @@ def delete_sellers(id_select):
                 break
         else:
             found_id = False
-    save_sellers()
     if not found_id:
         log.error("Vendedor não encontrado '%s'.", id_select)
         return 404, "not found"
     else:
+        save_sellers()
         log.info("Vendedor apagado com sucesso '%s'.", id_select)
         return 200, id_select
